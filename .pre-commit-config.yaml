@@ -1,0 +1,4 @@
+# pre-commit-config.yaml
+
+# Empty pre-commit configuration file without any hooks
+repos: []
