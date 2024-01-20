@@ -6,21 +6,27 @@ from typing import Optional
 
 Answer = namedtuple('answer_type', 'i j len')
 
+cache_x1 = [0] * 100_001
 
-def hash_function(s: str, x: int, p: int):
+
+def hash_function(s: str, x: int, p: int, cache: list):
     hash_value = 0
     for i, c in enumerate(s):
-        y = pow(x, i, p)
+        if cache[i] == 0:
+            cache[i] = pow(x, i, p)
+        y = cache[i]
         hash_value = (hash_value + ord(c) * y) % p
     return hash_value
 
 
-def precompute_hashes(text: str, p: int, x: int, l: int):
+def precompute_hashes(text: str, p: int, x: int, l: int, cache: list):
     """Precompute hashes for all substrings of text of length (l) for longest common substring matching."""
     last_index = len(text) - l
     hashes = [0] * (last_index + 1)  # zero as a placeholder for all hashes before precomputing
-    hashes[last_index] = hash_function(text[-l:], x, p)
-    y = pow(x, l, p)
+    hashes[last_index] = hash_function(text[-l:], x, p, cache)
+    if cache[l] == 0:
+        cache[l] = pow(x, l, p)
+    y = cache[l]
     for i in range(len(text) - l - 1, - 1, -1):
         hashes[i] = (x * hashes[i + 1] + ord(text[i]) - y * ord(text[i + l])) % p
     return hashes
@@ -49,9 +55,9 @@ class Solver:
 
     def setup_precomputed_hashes(self, s, t, k):
         """Precompute the hash values of all substrings of s and t of length k."""
-        self.hs_1 = precompute_hashes(s, self.m_1, self.x_1, k)
+        self.hs_1 = precompute_hashes(s, self.m_1, self.x_1, k, cache_x1)
         # self.hs_2 = precompute_hashes(s, self.m_2, self.x_2, k)
-        self.ht_1 = precompute_hashes(t, self.m_1, self.x_1, k)
+        self.ht_1 = precompute_hashes(t, self.m_1, self.x_1, k, cache_x1)
         # self.ht_2 = precompute_hashes(t, self.m_2, self.x_2, k)
 
     def check(self, a, b):

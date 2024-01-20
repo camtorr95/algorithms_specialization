@@ -2,20 +2,26 @@
 
 import sys
 
+cache_x1 = [0] * 200_001
 
-def hash_function(s: str, x: int, p: int):
+
+def hash_function(s: str, x: int, p: int, cache: list):
     """Inverted polynomial hash function for precomputing the hash values of all substrings of s."""
     hash_value = 0
     for i in range(len(s)):
         exp = len(s) - i - 1
-        y = pow(x, exp, p)
+        if cache[exp] == 0:
+            cache[exp] = pow(x, exp, p)
+        y = cache[exp]
         hash_value = (hash_value + ord(s[i]) * y) % p
     return hash_value
 
 
-def compute_hash(h: list, m: int, x: int, a: int, l: int):
+def compute_hash(h: list, m: int, x: int, a: int, l: int, cache: list):
     """Compute the hash value of a substring of length (l) starting at index (a) using the precomputed hash values."""
-    y = pow(x, l, m)
+    if cache[l] == 0:
+        cache[l] = pow(x, l, m)
+    y = cache[l]
     return (h[a + l] - h[a] * y) % m
 
 
@@ -28,20 +34,22 @@ class Solver:
         self.k = k
         self.s = s
         self.t = t
-        self.h_s = [hash_function(s[:i], self.x, self.m) for i in range(len(s) + 1)]
-        self.h_t = [hash_function(t[:i], self.x, self.m) for i in range(len(t) + 1)]
+        self.h_s = [hash_function(s[:i], self.x, self.m, cache_x1) for i in range(len(s) + 1)]
+        self.h_t = [hash_function(t[:i], self.x, self.m, cache_x1) for i in range(len(t) + 1)]
+        # config
+        self.early_stop = True
 
     def hash_s(self, l: int, u: int):
         """Compute the hash value of the substring of s from index (l) to index (u).
         l stands for lower and u stands for upper bound.
         """
-        return compute_hash(self.h_s, self.m, self.x, l, u - l + 1)
+        return compute_hash(self.h_s, self.m, self.x, l, u - l + 1, cache_x1)
 
     def hash_t(self, l: int, u: int):
         """Compute the hash value of the substring of t from index (l) to index (u).
         l stands for lower and u stands for upper bound.
         """
-        return compute_hash(self.h_t, self.m, self.x, l, u - l + 1)
+        return compute_hash(self.h_t, self.m, self.x, l, u - l + 1, cache_x1)
 
     def search_mismatches(self, l_s: int, u_s: int, l_t: int, u_t: int, errors: int = 0):
         """Search for mismatches in the two strings using binary search. Return the number of mismatches found up to one above the maximum
@@ -72,7 +80,7 @@ class Solver:
             errors += 1
 
         # stop if the number of errors is greater than k
-        if errors > self.k:
+        if self.early_stop and errors > self.k:
             return errors
 
         # Calculate the hash values of the left and right halves of the strings without the middle character.
