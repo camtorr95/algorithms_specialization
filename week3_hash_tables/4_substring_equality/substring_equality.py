@@ -27,12 +27,12 @@ class Solver:
 
     def __init__(self, s):
         self.h_1 = [hash_function(s[:i], self.x_1, self.m_1) for i in range(len(s) + 1)]
-        self.h_2 = [hash_function(s[:i], self.x_2, self.m_2) for i in range(len(s) + 1)]
+        # self.h_2 = [hash_function(s[:i], self.x_2, self.m_2) for i in range(len(s) + 1)]
         self.s = s
 
     def ask(self, a, b, l):
-        return (compute_hash(self.h_1, self.m_1, self.x_1, a, l) == compute_hash(self.h_1, self.m_1, self.x_1, b, l) and
-                compute_hash(self.h_2, self.m_2, self.x_2, a, l) == compute_hash(self.h_2, self.m_2, self.x_2, b, l))
+        # compute_hash(self.h_2, self.m_2, self.x_2, a, l) == compute_hash(self.h_2, self.m_2, self.x_2, b, l))
+        return compute_hash(self.h_1, self.m_1, self.x_1, a, l) == compute_hash(self.h_1, self.m_1, self.x_1, b, l)  # and
 
 
 def main():

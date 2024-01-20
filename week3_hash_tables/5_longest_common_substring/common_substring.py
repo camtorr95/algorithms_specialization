@@ -43,20 +43,20 @@ class Solver:
         self.t = t
         # Hash table to save all hash values of length k.
         self.hs_1: Optional[list] = None
-        self.hs_2: Optional[list] = None
+        # self.hs_2: Optional[list] = None
         self.ht_1: Optional[list] = None
-        self.ht_2: Optional[list] = None
+        # self.ht_2: Optional[list] = None
 
     def setup_precomputed_hashes(self, s, t, k):
         """Precompute the hash values of all substrings of s and t of length k."""
         self.hs_1 = precompute_hashes(s, self.m_1, self.x_1, k)
-        self.hs_2 = precompute_hashes(s, self.m_2, self.x_2, k)
+        # self.hs_2 = precompute_hashes(s, self.m_2, self.x_2, k)
         self.ht_1 = precompute_hashes(t, self.m_1, self.x_1, k)
-        self.ht_2 = precompute_hashes(t, self.m_2, self.x_2, k)
+        # self.ht_2 = precompute_hashes(t, self.m_2, self.x_2, k)
 
     def check(self, a, b):
         """Check if the substrings of s and t starting at a and b, respectively, have length l."""
-        return self.hs_1[a] == self.ht_1[b] and self.hs_2[a] == self.ht_2[b]
+        return self.hs_1[a] == self.ht_1[b]  # and self.hs_2[a] == self.ht_2[b]
 
     def find_substring(self, k) -> Optional[Answer]:
         """Find a substring of s and t of length k."""
